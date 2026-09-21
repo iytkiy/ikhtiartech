@@ -4,34 +4,97 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>اختيار تك | لابتوبات مستعملة ومجددة في الأردن</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0f1b3d;
+      --green: #2ecc71;
+      --white: #ffffff;
+      --gray: #f4f6f9;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Tajawal', sans-serif;
+      background: var(--gray);
+      color: var(--navy);
+    }
+    header {
+      background: var(--white);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    header img {
+      height: 42px;
+    }
+    .hero {
+      background: var(--navy);
+      color: var(--white);
+      text-align: center;
+      padding: 40px 20px;
+    }
+    .hero h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+    .hero p {
+      font-size: 15px;
+      opacity: 0.85;
+    }
+    main {
+      padding: 20px;
+    }
+    #status {
+      display: block;
+      text-align: center;
+      margin: 20px 0;
+      color: #888;
+      font-size: 14px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 14px;
+    }
+  </style>
 </head>
 <body>
-  <h1>مرحبًا بكم في اختيار تك</h1>
-  <p>حالة الاتصال بقاعدة البيانات: <span id="status">جارٍ الفحص...</span></p>
 
-  <script>
-    window.onerror = function(msg) {
-      document.getElementById('status').textContent = 'خطأ في الصفحة: ' + msg;
-    };
-  </script>
+  <header>
+    <img src="logo.png" alt="اختيار تك">
+  </header>
+
+  <div class="hero">
+    <h1>لابتوبك المناسب بسعر يناسبك</h1>
+    <p>أجهزة مستعملة ومجددة بجودة موثوقة، لكل استخدام: دراسة، برمجة، تصميم وألعاب</p>
+  </div>
+
+  <main>
+    <span id="status">جارٍ تحميل المنتجات...</span>
+    <div class="grid" id="products"></div>
+  </main>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    try {
-      const supabaseUrl = 'https://ycntbxyssshlsxbaxugn.supabase.co';
-      const supabaseKey = 'sb_publishable_wictDeASMg3TbeCffysizA_vAADTbVA';
-      const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    const supabaseUrl = 'https://ycntbxyssshlsxbaxugn.supabase.co';
+    const supabaseKey = 'sb_publishable_wictDeASMg3TbeCffysizA_vAADTbVA';
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-      supabase.from('products').select('*').then(function(result) {
-        const statusEl = document.getElementById('status');
-        if (result.error) {
-          statusEl.textContent = 'فشل الاتصال: ' + result.error.message;
-        } else {
-          statusEl.textContent = 'نجح الاتصال! عدد المنتجات حاليًا: ' + result.data.length;
-        }
-      });
-    } catch (e) {
-      document.getElementById('status').textContent = 'خطأ في التنفيذ: ' + e.message;
-    }
+    supabase.from('products').select('*').then(function(result) {
+      const statusEl = document.getElementById('status');
+      if (result.error) {
+        statusEl.textContent = 'حدث خطأ في تحميل المنتجات';
+      } else if (result.data.length === 0) {
+        statusEl.textContent = 'لا توجد أجهزة معروضة حاليًا';
+      } else {
+        statusEl.style.display = 'none';
+      }
+    });
   </script>
 </body>
 </html>
