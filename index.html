@@ -9,23 +9,29 @@
   <h1>مرحبًا بكم في اختيار تك</h1>
   <p>حالة الاتصال بقاعدة البيانات: <span id="status">جارٍ الفحص...</span></p>
 
+  <script>
+    window.onerror = function(msg) {
+      document.getElementById('status').textContent = 'خطأ في الصفحة: ' + msg;
+    };
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const supabaseUrl = 'https://ycntbxyssshlsxbaxugn.supabase.co';
-    const supabaseKey = 'sb_publishable_wictDeASMg3TbeCffysizA_vAADTbVA';
-    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    try {
+      const supabaseUrl = 'https://ycntbxyssshlsxbaxugn.supabase.co';
+      const supabaseKey = 'sb_publishable_wictDeASMg3TbeCffysizA_vAADTbVA';
+      const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-    async function testConnection() {
-      const { data, error } = await supabase.from('products').select('*');
-      const statusEl = document.getElementById('status');
-      if (error) {
-        statusEl.textContent = 'فشل الاتصال: ' + error.message;
-      } else {
-        statusEl.textContent = 'نجح الاتصال! عدد المنتجات حاليًا: ' + data.length;
-      }
+      supabase.from('products').select('*').then(function(result) {
+        const statusEl = document.getElementById('status');
+        if (result.error) {
+          statusEl.textContent = 'فشل الاتصال: ' + result.error.message;
+        } else {
+          statusEl.textContent = 'نجح الاتصال! عدد المنتجات حاليًا: ' + result.data.length;
+        }
+      });
+    } catch (e) {
+      document.getElementById('status').textContent = 'خطأ في التنفيذ: ' + e.message;
     }
-
-    testConnection();
   </script>
 </body>
 </html>
