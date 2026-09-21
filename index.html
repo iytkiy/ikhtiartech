@@ -7,6 +7,25 @@
 </head>
 <body>
   <h1>مرحبًا بكم في اختيار تك</h1>
-  <p>متجرك الموثوق للابتوبات المستعملة والمجددة في الأردن.</p>
+  <p>حالة الاتصال بقاعدة البيانات: <span id="status">جارٍ الفحص...</span></p>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabaseUrl = 'https://ycntbxyssshlsxbaxugn.supabase.co';
+    const supabaseKey = 'sb_publishable_wictDeASMg3TbeCffysizA_vAADTbVA';
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    async function testConnection() {
+      const { data, error } = await supabase.from('products').select('*');
+      const statusEl = document.getElementById('status');
+      if (error) {
+        statusEl.textContent = 'فشل الاتصال: ' + error.message;
+      } else {
+        statusEl.textContent = 'نجح الاتصال! عدد المنتجات حاليًا: ' + data.length;
+      }
+    }
+
+    testConnection();
+  </script>
 </body>
 </html>
