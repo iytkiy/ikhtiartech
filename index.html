@@ -13,7 +13,6 @@
       --gray: #f4f6f9;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    <script>window.onerror = function(msg){document.title = 'خطأ: ' + msg;};</script>
     body {
       font-family: 'Tajawal', sans-serif;
       background: var(--gray);
@@ -66,8 +65,14 @@
 </head>
 <body>
 
+  <script>
+    window.onerror = function(msg){
+      document.getElementById('status').textContent = 'خطأ: ' + msg;
+    };
+  </script>
+
   <header>
-    <img src="FB_IMG_1790031755538.jpg" alt="اختيار تك">
+    <img src="logo.png" alt="اختيار تك">
   </header>
 
   <div class="hero">
@@ -82,20 +87,29 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const supabaseUrl = 'https://ycntbxyssshlsxbaxugn.supabase.co';
-    const supabaseKey = 'sb_publishable_wictDeASMg3TbeCffysizA_vAADTbVA';
-    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    const statusEl = document.getElementById('status');
 
-    supabase.from('products').select('*').then(function(result) {
-      const statusEl = document.getElementById('status');
-      if (result.error) {
-        statusEl.textContent = 'حدث خطأ في تحميل المنتجات';
-      } else if (result.data.length === 0) {
-        statusEl.textContent = 'لا توجد أجهزة معروضة حاليًا';
-      } else {
-        statusEl.style.display = 'none';
-      }
-    });
+    if (typeof window.supabase === 'undefined') {
+      statusEl.textContent = 'خطأ: مكتبة Supabase لم يتم تحميلها';
+    } else {
+      const supabaseUrl = 'https://ycntbxyssshlsxbaxugn.supabase.co';
+      const supabaseKey = 'sb_publishable_wictDeASMg3TbeCffysizA_vAADTbVA';
+      const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+      supabase.from('products').select('*')
+        .then(function(result) {
+          if (result.error) {
+            statusEl.textContent = 'خطأ من قاعدة البيانات: ' + result.error.message;
+          } else if (result.data.length === 0) {
+            statusEl.textContent = 'لا توجد أجهزة معروضة حاليًا';
+          } else {
+            statusEl.style.display = 'none';
+          }
+        })
+        .catch(function(err) {
+          statusEl.textContent = 'خطأ في الاتصال: ' + err.message;
+        });
+    }
   </script>
 </body>
 </html>
