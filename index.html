@@ -79,12 +79,23 @@
     .card-img {
       width: 100%;
       aspect-ratio: 1 / 1;
-      background: linear-gradient(135deg, #eef1f6, #e3e8f0);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #b3bac7;
-      font-size: 12px;
+      position: relative;
+    }
+    .card-img svg { width: 55%; height: 55%; }
+    .approx-badge {
+      position: absolute;
+      bottom: 4px;
+      right: 4px;
+      left: 4px;
+      background: rgba(15,27,61,0.75);
+      color: var(--white);
+      font-size: 9px;
+      text-align: center;
+      padding: 2px 4px;
+      border-radius: 6px;
     }
     .card-body {
       padding: 10px;
@@ -134,6 +145,13 @@
       font-size: 16px;
       color: var(--navy);
     }
+    .modal-img {
+      width: 100%;
+      max-width: 160px;
+      margin: 0 auto 14px;
+      position: relative;
+    }
+    .modal-img svg { width: 100%; }
     .modal h2 { font-size: 18px; margin-bottom: 8px; padding-left: 34px; }
     .modal-price {
       display: inline-block;
@@ -167,6 +185,13 @@
       margin-top: 18px;
       box-shadow: 0 4px 12px rgba(34,197,94,0.35);
     }
+    .modal-note {
+      text-align: center;
+      font-size: 11px;
+      color: #999;
+      margin-top: -8px;
+      margin-bottom: 14px;
+    }
   </style>
 </head>
 <body>
@@ -198,6 +223,34 @@
     const overlayEl = document.getElementById('overlay');
     const modalEl = document.getElementById('modal');
 
+    const BRAND_COLORS = {
+      'Dell': '#0076CE',
+      'Apple': '#8E8E93',
+      'HP': '#0096D6',
+      'Lenovo': '#E2231A',
+      'Acer': '#83B81A',
+      'Samsung': '#1428A0',
+      'Toshiba': '#DA291C',
+      'Microsoft': '#00A4EF',
+      'Fujitsu': '#EE0000',
+      'e-life': '#6B7280'
+    };
+
+    function brandColor(brand) {
+      return BRAND_COLORS[brand] || '#0f1b3d';
+    }
+
+    function laptopSvg(color) {
+      return `
+        <svg viewBox="0 0 100 70" xmlns="http://www.w3.org/2000/svg">
+          <rect x="18" y="8" width="64" height="42" rx="3" fill="${color}" opacity="0.15"/>
+          <rect x="18" y="8" width="64" height="42" rx="3" fill="none" stroke="${color}" stroke-width="3"/>
+          <rect x="24" y="14" width="52" height="30" fill="${color}" opacity="0.3"/>
+          <path d="M10 55 L90 55 L82 62 L18 62 Z" fill="${color}"/>
+        </svg>
+      `;
+    }
+
     function specRow(label, value) {
       if (!value) return '';
       return `<div class="spec-row"><span class="spec-label">${label}</span><span class="spec-value">${value}</span></div>`;
@@ -205,8 +258,11 @@
 
     function openModal(p) {
       const whatsappMsg = encodeURIComponent('مرحبًا، أريد الاستفسار عن جهاز ' + p.name + ' الموجود في متجر اختيار تك.');
+      const color = brandColor(p.brand);
       modalEl.innerHTML = `
         <button class="modal-close" onclick="closeModal()">✕</button>
+        <div class="modal-img">${laptopSvg(color)}</div>
+        <div class="modal-note">⚠️ صورة تقريبية توضيحية وليست صورة الجهاز الفعلي</div>
         <h2>${p.name}</h2>
         <div class="modal-price">${p.price} د.أ</div>
         ${specRow('الشركة', p.brand)}
@@ -222,7 +278,7 @@
         ${specRow('الضمان', p.warranty)}
         ${specRow('الملحقات', p.accessories)}
         ${specRow('مناسب لـ', p.category)}
-        <a class="modal-btn" href="https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMsg}">تواصل عبر واتساب</a>
+        <a class="modal-btn" href="https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMsg}">تواصل عبر واتساب للتأكد من الصورة الحقيقية والتفاصيل</a>
       `;
       overlayEl.classList.add('open');
     }
@@ -262,8 +318,12 @@
               const card = document.createElement('div');
               card.className = 'card';
               const specs = [p.processor, p.ram, p.storage].filter(Boolean).join(' • ');
+              const color = brandColor(p.brand);
               card.innerHTML = `
-                <div class="card-img">لا توجد صورة بعد</div>
+                <div class="card-img" style="background:${color}0d;">
+                  ${laptopSvg(color)}
+                  <div class="approx-badge">صورة تقريبية</div>
+                </div>
                 <div class="card-body">
                   <div class="card-name">${p.name}</div>
                   <div class="card-specs">${specs}</div>
