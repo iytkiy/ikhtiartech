@@ -58,6 +58,7 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.08);
       display: flex;
       flex-direction: column;
+      cursor: pointer;
     }
     .card-img {
       width: 100%;
@@ -90,6 +91,62 @@
       font-size: 13px;
       margin-top: 6px;
     }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 100;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .overlay.open { display: flex; }
+    .modal {
+      background: var(--white);
+      width: 100%;
+      max-width: 480px;
+      max-height: 85vh;
+      overflow-y: auto;
+      border-radius: 16px 16px 0 0;
+      padding: 20px;
+      position: relative;
+    }
+    .modal-close {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: var(--gray);
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      font-size: 16px;
+      color: var(--navy);
+    }
+    .modal h2 { font-size: 18px; margin-bottom: 8px; padding-left: 30px; }
+    .modal-price { color: var(--green); font-weight: 900; font-size: 20px; margin-bottom: 14px; }
+    .spec-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--gray);
+      font-size: 13px;
+    }
+    .spec-label { color: #888; }
+    .spec-value { font-weight: 700; }
+    .modal-btn {
+      display: block;
+      text-align: center;
+      background: var(--green);
+      color: var(--white);
+      text-decoration: none;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      margin-top: 16px;
+    }
   </style>
 </head>
 <body>
@@ -108,10 +165,53 @@
     <div class="grid" id="products"></div>
   </main>
 
+  <div class="overlay" id="overlay">
+    <div class="modal" id="modal"></div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const statusEl = document.getElementById('status');
     const gridEl = document.getElementById('products');
+    const overlayEl = document.getElementById('overlay');
+    const modalEl = document.getElementById('modal');
+
+    function specRow(label, value) {
+      if (!value) return '';
+      return `<div class="spec-row"><span class="spec-label">${label}</span><span class="spec-value">${value}</span></div>`;
+    }
+
+    function openModal(p) {
+      const whatsappMsg = encodeURIComponent('مرحبًا، أريد الاستفسار عن جهاز ' + p.name + ' الموجود في متجر اختيار تك.');
+      modalEl.innerHTML = `
+        <button class="modal-close" onclick="closeModal()">✕</button>
+        <h2>${p.name}</h2>
+        <div class="modal-price">${p.price} د.أ</div>
+        ${specRow('الشركة', p.brand)}
+        ${specRow('الموديل', p.model)}
+        ${specRow('المعالج', p.processor)}
+        ${specRow('الجيل', p.generation)}
+        ${specRow('الرام', p.ram)}
+        ${specRow('التخزين', p.storage)}
+        ${specRow('كرت الشاشة', p.gpu)}
+        ${specRow('حجم الشاشة', p.screen_size)}
+        ${specRow('الحالة', p.condition)}
+        ${specRow('نظام التشغيل', p.os)}
+        ${specRow('الضمان', p.warranty)}
+        ${specRow('الملحقات', p.accessories)}
+        ${specRow('مناسب لـ', p.category)}
+        <a class="modal-btn" href="https://wa.me/?text=${whatsappMsg}">تواصل عبر واتساب</a>
+      `;
+      overlayEl.classList.add('open');
+    }
+
+    function closeModal() {
+      overlayEl.classList.remove('open');
+    }
+
+    overlayEl.addEventListener('click', function(e) {
+      if (e.target === overlayEl) closeModal();
+    });
 
     function loadProducts() {
       try {
@@ -140,16 +240,15 @@
               const card = document.createElement('div');
               card.className = 'card';
               const specs = [p.processor, p.ram, p.storage].filter(Boolean).join(' • ');
-              const whatsappMsg = encodeURIComponent('مرحبًا، أريد الاستفسار عن جهاز ' + p.name + ' الموجود في متجر اختيار تك.');
               card.innerHTML = `
                 <div class="card-img">لا توجد صورة بعد</div>
                 <div class="card-body">
                   <div class="card-name">${p.name}</div>
                   <div class="card-specs">${specs}</div>
                   <div class="card-price">${p.price} د.أ</div>
-                  <a class="card-btn" href="https://wa.me/?text=${whatsappMsg}">واتساب للاستفسار</a>
                 </div>
               `;
+              card.addEventListener('click', function() { openModal(p); });
               gridEl.appendChild(card);
             });
           })
