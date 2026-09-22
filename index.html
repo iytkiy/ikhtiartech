@@ -33,25 +33,20 @@
       z-index: 10;
     }
     header img { height: 42px; }
+
     .hero {
-      background: linear-gradient(135deg, var(--navy), var(--navy2));
+      background:
+        radial-gradient(circle at 15% 20%, rgba(34,197,94,0.35), transparent 45%),
+        radial-gradient(circle at 90% 10%, rgba(34,197,94,0.25), transparent 40%),
+        linear-gradient(135deg, var(--navy), var(--navy2) 60%, #24397a);
       color: var(--white);
       text-align: center;
-      padding: 44px 20px;
+      padding: 48px 20px 40px;
       position: relative;
       overflow: hidden;
     }
-    .hero::after {
-      content: '';
-      position: absolute;
-      bottom: -40px;
-      right: -40px;
-      width: 160px;
-      height: 160px;
-      background: radial-gradient(circle, rgba(34,197,94,0.35), transparent 70%);
-    }
-    .hero h1 { font-size: 25px; margin-bottom: 10px; position: relative; }
-    .hero p { font-size: 15px; opacity: 0.9; position: relative; }
+    .hero h1 { font-size: 26px; margin-bottom: 10px; position: relative; }
+    .hero p { font-size: 15px; opacity: 0.92; position: relative; }
 
     .filters {
       display: flex;
@@ -229,6 +224,37 @@
       padding: 30px 0;
       display: none;
     }
+
+    .social {
+      background: var(--white);
+      text-align: center;
+      padding: 30px 20px 40px;
+      margin-top: 10px;
+    }
+    .social p {
+      font-size: 14px;
+      color: var(--navy);
+      margin-bottom: 14px;
+      font-weight: 700;
+    }
+    .social-icons {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+    }
+    .social-icons a {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      text-decoration: none;
+    }
+    .social-icons a.ig { background: linear-gradient(135deg, #f58529, #dd2a7b, #8134af); }
+    .social-icons a.fb { background: #1877f2; }
+    .social-icons svg { width: 24px; height: 24px; fill: currentColor; }
   </style>
 </head>
 <body>
@@ -259,6 +285,18 @@
     <div class="grid" id="products"></div>
     <div class="no-results" id="noResults">لا توجد أجهزة مطابقة لهذا التصنيف حاليًا</div>
   </main>
+
+  <div class="social">
+    <p>تابعنا لمعرفة أحدث العروض</p>
+    <div class="social-icons">
+      <a class="ig" href="https://www.instagram.com/e5tyar.tech" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24"><path d="M12 2c2.7 0 3.05.01 4.12.06 1.07.05 1.8.22 2.43.47.66.26 1.22.6 1.77 1.15.55.55.9 1.11 1.15 1.77.25.63.42 1.36.47 2.43.05 1.07.06 1.42.06 4.12s-.01 3.05-.06 4.12c-.05 1.07-.22 1.8-.47 2.43a4.9 4.9 0 0 1-1.15 1.77 4.9 4.9 0 0 1-1.77 1.15c-.63.25-1.36.42-2.43.47-1.07.05-1.42.06-4.12.06s-3.05-.01-4.12-.06c-1.07-.05-1.8-.22-2.43-.47a4.9 4.9 0 0 1-1.77-1.15 4.9 4.9 0 0 1-1.15-1.77c-.25-.63-.42-1.36-.47-2.43C2.01 15.05 2 14.7 2 12s.01-3.05.06-4.12c.05-1.07.22-1.8.47-2.43.26-.66.6-1.22 1.15-1.77A4.9 4.9 0 0 1 5.45.53C6.08.28 6.81.11 7.88.06 8.95.01 9.3 0 12 0zm0 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 8.2a3.2 3.2 0 1 1 0-6.4 3.2 3.2 0 0 1 0 6.4zm5.2-8.4a1.2 1.2 0 1 1-2.4 0 1.2 1.2 0 0 1 2.4 0z"/></svg>
+      </a>
+      <a class="fb" href="https://www.facebook.com/share/1AupD22gYs/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24"><path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.78-3.89 1.1 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99A10 10 0 0 0 22 12z"/></svg>
+      </a>
+    </div>
+  </div>
 
   <div class="overlay" id="overlay">
     <div class="modal" id="modal"></div>
