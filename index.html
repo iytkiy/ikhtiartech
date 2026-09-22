@@ -52,6 +52,36 @@
     }
     .hero h1 { font-size: 25px; margin-bottom: 10px; position: relative; }
     .hero p { font-size: 15px; opacity: 0.9; position: relative; }
+
+    .filters {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--white);
+      position: sticky;
+      top: 70px;
+      z-index: 9;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .filters::-webkit-scrollbar { display: none; }
+    .chip {
+      flex-shrink: 0;
+      padding: 7px 14px;
+      border-radius: 20px;
+      background: var(--gray);
+      color: var(--navy);
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+      border: none;
+      cursor: pointer;
+    }
+    .chip.active {
+      background: linear-gradient(135deg, var(--green), var(--green2));
+      color: var(--white);
+    }
+
     main { padding: 20px; }
     #status {
       display: block;
@@ -192,6 +222,13 @@
       margin-top: -8px;
       margin-bottom: 14px;
     }
+    .no-results {
+      text-align: center;
+      color: #999;
+      font-size: 14px;
+      padding: 30px 0;
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -205,9 +242,22 @@
     <p>أجهزة مستعملة ومجددة بجودة موثوقة، لكل استخدام: دراسة، برمجة، تصميم وألعاب</p>
   </div>
 
+  <div class="filters" id="filters">
+    <button class="chip active" data-filter="الكل">الكل</button>
+    <button class="chip" data-filter="دراسة">دراسة</button>
+    <button class="chip" data-filter="برمجة">برمجة</button>
+    <button class="chip" data-filter="أمن سيبراني">أمن سيبراني</button>
+    <button class="chip" data-filter="هندسة">هندسة</button>
+    <button class="chip" data-filter="تصميم">تصميم</button>
+    <button class="chip" data-filter="ألعاب">ألعاب</button>
+    <button class="chip" data-filter="أعمال مكتبية">أعمال مكتبية</button>
+    <button class="chip" data-filter="استخدام يومي">استخدام يومي</button>
+  </div>
+
   <main>
     <span id="status">جارٍ تحميل المنتجات...</span>
     <div class="grid" id="products"></div>
+    <div class="no-results" id="noResults">لا توجد أجهزة مطابقة لهذا التصنيف حاليًا</div>
   </main>
 
   <div class="overlay" id="overlay">
@@ -222,23 +272,19 @@
     const gridEl = document.getElementById('products');
     const overlayEl = document.getElementById('overlay');
     const modalEl = document.getElementById('modal');
+    const filtersEl = document.getElementById('filters');
+    const noResultsEl = document.getElementById('noResults');
+
+    let allProducts = [];
+    let currentFilter = 'الكل';
 
     const BRAND_COLORS = {
-      'Dell': '#0076CE',
-      'Apple': '#8E8E93',
-      'HP': '#0096D6',
-      'Lenovo': '#E2231A',
-      'Acer': '#83B81A',
-      'Samsung': '#1428A0',
-      'Toshiba': '#DA291C',
-      'Microsoft': '#00A4EF',
-      'Fujitsu': '#EE0000',
+      'Dell': '#0076CE', 'Apple': '#8E8E93', 'HP': '#0096D6',
+      'Lenovo': '#E2231A', 'Acer': '#83B81A', 'Samsung': '#1428A0',
+      'Toshiba': '#DA291C', 'Microsoft': '#00A4EF', 'Fujitsu': '#EE0000',
       'e-life': '#6B7280'
     };
-
-    function brandColor(brand) {
-      return BRAND_COLORS[brand] || '#0f1b3d';
-    }
+    function brandColor(brand) { return BRAND_COLORS[brand] || '#0f1b3d'; }
 
     function laptopSvg(color) {
       return `
@@ -283,12 +329,51 @@
       overlayEl.classList.add('open');
     }
 
-    function closeModal() {
-      overlayEl.classList.remove('open');
+    function closeModal() { overlayEl.classList.remove('open'); }
+    overlayEl.addEventListener('click', function(e) { if (e.target === overlayEl) closeModal(); });
+
+    function renderProducts() {
+      gridEl.innerHTML = '';
+      const filtered = currentFilter === 'الكل'
+        ? allProducts
+        : allProducts.filter(function(p) {
+            return p.category && p.category.indexOf(currentFilter) !== -1;
+          });
+
+      if (filtered.length === 0) {
+        noResultsEl.style.display = 'block';
+        return;
+      }
+      noResultsEl.style.display = 'none';
+
+      filtered.forEach(function(p) {
+        const card = document.createElement('div');
+        card.className = 'card';
+        const specs = [p.processor, p.ram, p.storage].filter(Boolean).join(' • ');
+        const color = brandColor(p.brand);
+        card.innerHTML = `
+          <div class="card-img" style="background:${color}0d;">
+            ${laptopSvg(color)}
+            <div class="approx-badge">صورة تقريبية</div>
+          </div>
+          <div class="card-body">
+            <div class="card-name">${p.name}</div>
+            <div class="card-specs">${specs}</div>
+            <div class="card-price">${p.price} د.أ</div>
+          </div>
+        `;
+        card.addEventListener('click', function() { openModal(p); });
+        gridEl.appendChild(card);
+      });
     }
 
-    overlayEl.addEventListener('click', function(e) {
-      if (e.target === overlayEl) closeModal();
+    filtersEl.addEventListener('click', function(e) {
+      const btn = e.target.closest('.chip');
+      if (!btn) return;
+      document.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('active'); });
+      btn.classList.add('active');
+      currentFilter = btn.dataset.filter;
+      renderProducts();
     });
 
     function loadProducts() {
@@ -313,26 +398,8 @@
               return;
             }
             statusEl.style.display = 'none';
-
-            result.data.forEach(function(p) {
-              const card = document.createElement('div');
-              card.className = 'card';
-              const specs = [p.processor, p.ram, p.storage].filter(Boolean).join(' • ');
-              const color = brandColor(p.brand);
-              card.innerHTML = `
-                <div class="card-img" style="background:${color}0d;">
-                  ${laptopSvg(color)}
-                  <div class="approx-badge">صورة تقريبية</div>
-                </div>
-                <div class="card-body">
-                  <div class="card-name">${p.name}</div>
-                  <div class="card-specs">${specs}</div>
-                  <div class="card-price">${p.price} د.أ</div>
-                </div>
-              `;
-              card.addEventListener('click', function() { openModal(p); });
-              gridEl.appendChild(card);
-            });
+            allProducts = result.data;
+            renderProducts();
           })
           .catch(function(err) {
             statusEl.textContent = 'خطأ في الاتصال: ' + err.message;
